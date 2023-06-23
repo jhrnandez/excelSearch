@@ -1,6 +1,5 @@
 module.exports = {
-    siteUrl: "https://sitename.com",
-    generateRobotsTxt: true,
-    changefreq: "weekly",
-  };
-  
+  siteUrl: "https://filtrar-excel.vercel.app/",
+  generateRobotsTxt: true,
+  changefreq: "weekly",
+};

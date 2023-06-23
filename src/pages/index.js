@@ -1,34 +1,13 @@
+import InputFile from "@/components/InputFile";
+import SEO from "@/components/SEO";
+import SearchFile from "@/components/SearchFile";
+import Table from "@/components/Table";
 import clsx from "clsx";
 import React, { useState } from "react";
-import * as XLSX from "xlsx";
 
 export default function Example() {
   const [items, setItems] = useState([]);
   const [itemsFull, setItemsFull] = useState([]); // <-- add this line
-  const readExcel = (file) => {
-    const promise = new Promise((resolve, reject) => {
-      const fileReader = new FileReader();
-      fileReader.readAsArrayBuffer(file);
-      fileReader.onload = (e) => {
-        const bufferArray = e.target.result;
-        const wb = XLSX.read(bufferArray, {
-          type: "buffer",
-        });
-        const wsname = wb.SheetNames[0];
-        const ws = wb.Sheets[wsname];
-        const data = XLSX.utils.sheet_to_json(ws);
-
-        resolve(data);
-      };
-      fileReader.onerror = (error) => {
-        reject(error);
-      };
-    });
-    promise.then((d) => {
-      setItems(d);
-      setItemsFull(d); // <-- add this line
-    });
-  };
 
   const FilterData = (e) => {
     const value = e.target.value;
@@ -40,7 +19,7 @@ export default function Example() {
     const filterData = items.filter((item) => {
       let isMatch = false;
       Object.keys(item).forEach((key) => {
-        if (item[key].toString().includes(value)) {
+        if (item[key].toString().toLowerCase().includes(value.toLowerCase())) {
           isMatch = true;
         }
       });
@@ -48,56 +27,42 @@ export default function Example() {
     });
     setItems(filterData);
   };
+
   return (
     <div className="bg-white">
-      <div className="py-5 w-8/12 mx-auto justify-between flex">
-        <input
-          type="file"
-          className="border border-gray-300 rounded-md px-3 py-1 focus:outline-none focus:ring-2 focus:ring-blue-600"
-          onChange={(e) => {
-            const file = e.target.files[0];
-            readExcel(file);
-          }}
-        />
-        <input
-          type="text"
-          id="filter"
-          placeholder="Buscar datos"
-          className="w-1/2 border border-gray-300 rounded-md px-3 py-1 focus:outline-none focus:ring-2 focus:ring-blue-600"
-          onChange={FilterData}
-        />
+      <SEO
+        title="Filtrar datos de hojas de cálculo de Excel"
+        description="Sube tu archivo Excel y filtra los datos de cualquier columna usando el buscador de excel. Funciona para cualquier archivo de Excel y NO guarda los datos en ningún servidor."
+        pinColor={"#000000"}
+        image={"https://filtrar-excel.vercel.app//og-image.png"}
+        url={"https://filtrar-excel.vercel.app/"}
+      />
+      <div
+        className={`py-5 w-8/12 mx-auto  flex ${clsx(
+          items.length < 1
+            ? "justify-center items-center flex-col h-screen"
+            : "justify-between flex-row "
+        )}`}
+      >
+        {items.length < 1 && (
+          <>
+            <h1 className="text-5xl font-bold">
+              Filtra los datos de cualquier archivo Excel
+            </h1>
+            <p className="child:font-bold w-8/12 text-center mt-2 mb-5 text-xl">
+              Sube tu archivo Excel y filtra los datos de{" "}
+              <b>cualquier columna</b> usando el <b>buscador de excel</b>.
+              Funciona para cualquier archivo de Excel y{" "}
+              <span>NO guarda los datos en ningún servidor.</span>
+            </p>
+            <InputFile setItems={setItems} setItemsFull={setItemsFull} />
+          </>
+        )}
+
+        {items.length > 0 && <SearchFile FilterData={FilterData} />}
       </div>
 
-      <table className="text-xs font-light w-[98%] mx-auto">
-        <thead>
-          <tr>
-            {items.length > 0 &&
-              Object.keys(items[0]).map((key, index) => (
-                <th className="text-sm border px-3 py-1" key={index}>
-                  {key}
-                </th>
-              ))}
-          </tr>
-        </thead>
-        <tbody>
-          {items.length > 0 &&
-            items.map((d, i) => (
-              <tr key={i}>
-                {Object.keys(items[0]).map((key, index) => (
-                  <td
-                    className={
-                      "text-center border-r px-3 py-2 " +
-                      clsx(i % 2 === 0 ? "bg-gray-100" : "bg-white")
-                    }
-                    key={index}
-                  >
-                    {d[key]}
-                  </td>
-                ))}
-              </tr>
-            ))}
-        </tbody>
-      </table>
+      <Table items={items} />
     </div>
   );
 }
