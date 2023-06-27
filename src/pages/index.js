@@ -11,12 +11,13 @@ export default function Example() {
 
   const FilterData = (e) => {
     const value = e.target.value;
-    if (value === "") {
-      setItems(itemsFull);
+    if (value === " " || value === "") {
+      e.target.value = "";
+      e.target.focus();
       return;
     }
 
-    const filterData = items.filter((item) => {
+    const filterData = itemsFull.filter((item) => {
       let isMatch = false;
       Object.keys(item).forEach((key) => {
         if (item[key].toString().toLowerCase().includes(value.toLowerCase())) {
@@ -29,7 +30,7 @@ export default function Example() {
   };
 
   return (
-    <div className="bg-white">
+    <div className="bg-white pb-10">
       <SEO
         title="Filtrar datos de hojas de cálculo de Excel"
         description="Sube tu archivo Excel y filtra los datos de cualquier columna usando el buscador de excel. Funciona para cualquier archivo de Excel y NO guarda los datos en ningún servidor."
@@ -39,12 +40,12 @@ export default function Example() {
       />
       <div
         className={`py-5 w-8/12 mx-auto  flex ${clsx(
-          items.length < 1
+          itemsFull.length < 1
             ? "justify-center items-center flex-col h-screen"
             : "justify-between flex-row "
         )}`}
       >
-        {items.length < 1 && (
+        {itemsFull.length < 1 && (
           <>
             <h1 className="text-5xl font-bold">
               Filtra los datos de cualquier archivo Excel
@@ -58,8 +59,21 @@ export default function Example() {
             <InputFile setItems={setItems} setItemsFull={setItemsFull} />
           </>
         )}
-
-        {items.length > 0 && <SearchFile FilterData={FilterData} />}
+        {itemsFull.length > 0 && (
+          <div className="flex flex-col lg:flex-row justify-between w-full gap-8">
+            <SearchFile FilterData={FilterData} />
+            <button
+              onClick={() => {
+                setItems([]);
+                setItemsFull([]);
+              }}
+              type="button"
+              className="bg-blue-600 whitespace-nowrap text-white rounded-md hover:bg-opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 focus:ring-opacity-50 cursor-pointer transition-all duration-200 ease-in-out px-2 py-1 text-md"
+            >
+              Subir otro archivo
+            </button>
+          </div>
+        )}
       </div>
 
       <Table items={items} />
